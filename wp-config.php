@@ -63,7 +63,8 @@ define('NONCE_SALT',       'VqMpyVcUlWGzNdD/q29KDj8VzQxRFgUjz3Oe5Qs9Oxg0duD+CPCo
  */
 $table_prefix = 'wp_';
 
-
+define( 'WP_SITEURL', 'http://karibuloo.dev/' );
+define( 'WP_HOME',    'http://karibuloo.dev/' );
 
 
 
