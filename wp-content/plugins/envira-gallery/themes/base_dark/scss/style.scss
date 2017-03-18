@@ -24,6 +24,7 @@
 			& .envirabox-position-overlay {
 				bottom: 15px;
 				width: auto;
+				display: table; /* table, otherwise the overlap - like in pinterest addon - will not allow the nav arrows to be clicked because the div height will extend */
 			}
 
 

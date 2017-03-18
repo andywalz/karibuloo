@@ -108,6 +108,7 @@ add_theme_support( 'genesis-after-entry-widget-area' );
 add_image_size( 'author-pro-image', 640, 640, TRUE );
 add_image_size( 'featured-image', 640, 640, TRUE );
 add_image_size( 'featured-image-large', 1000, 1000, TRUE );
+add_image_size( 'featured-image-huge', 1600, 9999, TRUE );
 
 // Remove secondary sidebar.
 unregister_sidebar( 'sidebar-alt' );
@@ -171,7 +172,7 @@ function wellness_featured_image() {
 
 	$image = genesis_get_image( array(
 			'format'  => 'html',
-			'size'    => 'featured-image-large',
+			'size'    => 'featured-image-huge',
 			'context' => '',
 			'attr'    => array ( 'alt' => the_title_attribute( 'echo=0' ), 'class' => 'aligncenter' ),
 		) );
@@ -245,14 +246,57 @@ function wellness_before_footer_widget() {
 
 }
 
+remove_action( 'genesis_footer', 'genesis_do_footer' );
+
+genesis_register_sidebar( array(
+    'id'          => 'footer-1',
+    'name'        => __( 'Footer 1', 'wellness-pro' ),
+    'description' => __( 'Footer column 1 widget area', 'wellness-pro' ),
+) );
+genesis_register_sidebar( array(
+    'id'          => 'footer-2',
+    'name'        => __( 'Footer 2', 'wellness-pro' ),
+    'description' => __( 'Footer column 2 widget area', 'wellness-pro' ),
+) );
+genesis_register_sidebar( array(
+    'id'          => 'footer-3',
+    'name'        => __( 'Footer 3', 'wellness-pro' ),
+    'description' => __( 'Footer column 3 widget area', 'wellness-pro' ),
+) );
+genesis_register_sidebar( array(
+    'id'          => 'footer-4',
+    'name'        => __( 'Footer 4', 'wellness-pro' ),
+    'description' => __( 'Full width footer area below the other 3', 'wellness-pro' ),
+) );
+
 // Add the flexible footer widget area.
 add_action( 'genesis_before_footer', 'wellness_footer_widgets' );
 function wellness_footer_widgets() {
 
-	genesis_widget_area( 'flex-footer', array(
-		'before' => '<div id="footer" class="flex-footer footer-widgets"><h2 class="genesis-sidebar-title screen-reader-text">' . __( 'Footer', 'wellness-pro' ) . '</h2><div class="flexible-widgets widget-area ' . wellness_widget_area_class( 'flex-footer' ) . '"><div class="wrap">',
-		'after'  => '</div></div></div>',
-	) );
+	// genesis_widget_area( 'flex-footer', array(
+	// 	'before' => '<div id="footer" class="flex-footer footer-widgets"><h2 class="genesis-sidebar-title screen-reader-text">' . __( 'Footer', 'wellness-pro' ) . '</h2><div class="flexible-widgets widget-area ' . wellness_widget_area_class( 'flex-footer' ) . '"><div class="wrap">',
+	// 	'after'  => '</div></div></div>',
+	// ) );
+
+	    // Bottom footer area
+    echo '<div id="footer" class="flex-footer footer-widgets footer-row">';
+    genesis_widget_area( 'footer-1', array(
+        'before' => '<div id="footer-1" class="one-third first">',
+        'after'  => '</div>',
+    ) );
+    genesis_widget_area( 'footer-2', array(
+        'before' => '<div id="footer-2" class="one-third">',
+        'after'  => '</div>',
+    ) );
+    genesis_widget_area( 'footer-3', array(
+        'before' => '<div id="footer-3" class="one-third">',
+        'after'  => '</div>',
+    ) );
+    echo '</div>';
+    genesis_widget_area( 'footer-4', array(
+        'before' => '<div id="footer-4"><div class="wrap">',
+        'after'  => '</div></div>',
+    ) );
 
 }
 
@@ -304,6 +348,9 @@ genesis_register_sidebar( array(
 ) );
 
 
-
-/** Add new image sizes */
-add_image_size( 'header', 1600, 9999, TRUE );
+add_action( 'genesis_footer', 'kl_footer_creds', 10 );
+//* Footer Credits
+function kl_footer_creds() {
+	$creds = '<div class="credits">&copy ' . date('Y') . ' &middot; Karibu Loo</div>';
+	echo $creds;
+}

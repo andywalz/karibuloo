@@ -77,6 +77,8 @@ class Envira_Gallery_Posttype {
             'menu_position'       => apply_filters( 'envira_gallery_post_type_menu_position', 247 ),
             'menu_icon'           => plugins_url( 'assets/css/images/menu-icon@2x.png', $this->base->file ),
             'supports'            => array( 'title' ),
+            'map_meta_cap' 		  => true,
+
         );
 
         if ( get_option( 'envira_gallery_standalone_enabled' ) ) {

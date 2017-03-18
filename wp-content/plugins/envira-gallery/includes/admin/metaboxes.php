@@ -410,6 +410,11 @@ class Envira_Gallery_Metaboxes {
 
         global $post;
 
+        //bail if nothings there
+		if ( !isset( $post ) ){
+			return;
+		}
+
         // Check we're on an Envira Gallery
         if ( 'envira' != $post->post_type ) {
             return;
@@ -1004,7 +1009,7 @@ class Envira_Gallery_Metaboxes {
                                         <input id="envira-config-social-<?php echo $option_value; ?>" type="checkbox" name="_envira_gallery[additional_copy_automatic_<?php echo $option_value; ?>]" value="1" <?php checked( $this->get_config( 'additional_copy_automatic_' . $option_value, $this->get_config_default( 'additional_copy_automatic_' . $option_value ) ), 1 ); ?> />
                                         <?php echo $option_name; ?>
                                     </label>
-                                    <?php   
+                                    <?php
                                 }
                                 ?>
                                 <!--<p class="description">
@@ -1025,7 +1030,7 @@ class Envira_Gallery_Metaboxes {
                                         <input id="envira-config-social-<?php echo $option_value; ?>" type="checkbox" name="_envira_gallery[additional_copy_<?php echo $option_value; ?>]" value="1" <?php checked( $this->get_config( 'additional_copy_' . $option_value, $this->get_config_default( 'additional_copy_' . $option_value ) ), 1 ); ?> />
                                         <?php echo $option_name; ?>
                                     </label>
-                                    <?php   
+                                    <?php
                                 }
                                 ?>
                                 <!--<p class="description">
@@ -1990,7 +1995,7 @@ class Envira_Gallery_Metaboxes {
         // this is for automatic
         foreach ( $this->get_additional_copy_options() as $value => $option ) {
             $settings['config'][ 'additional_copy_automatic_' . $value ] = ( isset( $_POST['_envira_gallery'][ 'additional_copy_automatic_' . $value ] ) ? 1 : 0 );
-        }        
+        }
 
         // Automatic/Justified
         $settings['config']['justified_row_height'] 	= isset( $_POST['_envira_gallery']['justified_row_height'] ) ? absint($_POST['_envira_gallery']['justified_row_height'] ) : 150;
@@ -2091,7 +2096,9 @@ class Envira_Gallery_Metaboxes {
 
                 // add the custom size to image meta_data
                 $attach_data = wp_get_attachment_metadata( $image_id );
-                $resized_images = $attach_data['image_meta']['resized_images'];
+                if ( isset( $attach_data['image_meta']['resized_images'] ) ) {
+                    $resized_images = $attach_data['image_meta']['resized_images'];
+                }
                 if ( empty( $resized_images ) || !in_array( $thumbnail_width . 'x' . $thumbnail_height, $resized_images ) ) {
                     $attach_data['image_meta']['resized_images'][] = $thumbnail_width . 'x' . $thumbnail_height;
                     wp_update_attachment_metadata( $image_id,  $attach_data );

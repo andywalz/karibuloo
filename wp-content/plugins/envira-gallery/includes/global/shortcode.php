@@ -98,49 +98,49 @@ class Envira_Gallery_Shortcode {
 	 * @var array
 	 */
 	public $gallery_sort = array();
-	
+
 	/**
 	 * gallery_data
-	 * 
+	 *
 	 * (default value: array())
-	 * 
+	 *
 	 * @var array
 	 * @access public
 	 */
 	public $gallery_data = array();
-	
+
 	/**
 	 * common
-	 * 
+	 *
 	 * @var mixed
 	 * @access public
 	 */
 	public $common;
-	
+
 	/**
 	 * is_mobile
-	 * 
+	 *
 	 * @var mixed
 	 * @access public
 	 */
 	public $is_mobile;
-	
+
 	/**
 	 * item
-	 * 
+	 *
 	 * @var mixed
 	 * @access public
 	 */
 	public $item;
-	
+
 	/**
 	 * gallery_markup
-	 * 
+	 *
 	 * @var mixed
 	 * @access public
 	 */
 	public $gallery_markup;
-	
+
 	/**
 	 * Primary class constructor.
 	 *
@@ -183,7 +183,7 @@ class Envira_Gallery_Shortcode {
 
 		/* Yoast SEO */
 		add_filter( 'wpseo_sitemap_urlimages', array( $this, 'envira_filter_wpseo_sitemap_urlimages' ), 10, 2 );
-		
+
 	}
 
 	/**
@@ -360,7 +360,7 @@ class Envira_Gallery_Shortcode {
 
 					// Add the gallery item to the markup
 					$this->gallery_markup = $this->generate_gallery_item_markup( $this->gallery_markup, $this->gallery_data, $item, $id, $i );
-					
+
 					// Increment the iterator.
 					$i++;
 
@@ -421,7 +421,7 @@ class Envira_Gallery_Shortcode {
 	* @return	string				Gallery HTML
 	*/
 	public function generate_gallery_item_markup( $gallery, $data, $item, $id, $i ) {
-				
+
 		// Get some config values that we'll reuse for each image
 		$padding = absint( round( $this->get_config( 'gutter', $data ) / 2 ) );
 		$html5_attribute = ( ( $this->get_config( 'html5', $data ) == '1' ) ? 'data-envirabox-group' : 'rel' );
@@ -437,7 +437,7 @@ class Envira_Gallery_Shortcode {
 		// Get image and image retina URLs
 		// These calls will generate thumbnails as necessary for us.
 		$imagesrc = $this->get_image_src( $id, $item, $data );
-		$image_src_retina = $this->get_image_src( $id, $item, $data, false, true );	
+		$image_src_retina = $this->get_image_src( $id, $item, $data, false, true );
         // If we don't get an imagesrc, it's likely because of an error w/ dynamic
         // So to prevent JS errors or not rendering the gallery at all, return the gallery HTML because we can't render without it
         if ( !$imagesrc ) { return $gallery; }
@@ -478,7 +478,7 @@ class Envira_Gallery_Shortcode {
 		$output .= '<div class="envira-gallery-position-overlay ' . $css_class . ' envira-gallery-top-right">';
 		$output	 = apply_filters( 'envira_gallery_output_dynamic_position', $output, $id, $item, $data, $i, 'top-right' );
 		$output .= '</div>';
-		
+
 		// Bottom Left box
 		$output .= '<div class="envira-gallery-position-overlay ' . $css_class . ' envira-gallery-bottom-left">';
 		$output	 = apply_filters( 'envira_gallery_output_dynamic_position', $output, $id, $item, $data, $i, 'bottom-left' );
@@ -489,8 +489,15 @@ class Envira_Gallery_Shortcode {
 		$output	 = apply_filters( 'envira_gallery_output_dynamic_position', $output, $id, $item, $data, $i, 'bottom-right' );
 		$output .= '</div>';
 
-		if ( $this->get_config( 'columns', $data ) == 0 && $this->get_config( 'additional_copy_automatic_caption', $data ) ) {
-			$caption = isset( $item['caption'] ) ? do_shortcode( str_replace( "\n", '<br />', esc_attr( $item['caption'] ) ) ) : false;
+		if ( $this->get_config( 'columns', $data ) == 0 ) {
+			$caption_array = array();
+			if ( $this->get_config( 'additional_copy_automatic_title', $data ) && isset( $item['title'] ) ) {
+				$caption_array[] = esc_attr( $item['title'] );
+			}
+			if ( $this->get_config( 'additional_copy_automatic_caption', $data ) && isset( $item['caption'] ) ) {
+				$caption_array[] = esc_attr( $item['caption'] );
+			}
+			$caption = implode(' - ', $caption_array);
 		} else if ( $this->get_config( 'columns', $data ) > 0 ) {
 			$caption = isset( $item['caption'] ) ? do_shortcode( str_replace( "\n", '<br />', esc_attr( $item['caption'] ) ) ) : false;
 		} else {
@@ -519,7 +526,7 @@ class Envira_Gallery_Shortcode {
 		// "Turn off the lightbox then the image shouldn't be clicked"
 		if ( $this->is_mobile && !$this->get_config( 'lightbox_enabled', $data ) ) {
 			$create_link = false;
-		} else if ( $data['config']['type'] == 'instagram' && ! $data['config']['instagram_link'] ) {
+		} else if ( isset( $data['config']['type']) && $data['config']['type'] == 'instagram' && ! $data['config']['instagram_link'] ) {
 			$create_link = false;
 		} else if ( ! empty( $item['link'] ) ) {
 			$create_link = true;
@@ -531,11 +538,11 @@ class Envira_Gallery_Shortcode {
 		$schema_microdata = apply_filters( 'envira_gallery_output_schema_microdata_itemprop_contenturl', 'itemprop="contentUrl"', $data, $id, $item, $i );
 
 		if ( $create_link ) {
-			
+
 			$this->is_mobile_thumb = ! empty( $item['mobile_thumb'] ) ? esc_url( $item['mobile_thumb'] ) : '';
-			
+
 			$output .= '<a ' . $target . ' href="' . esc_url( $item['link'] ) . '" class="envira-gallery-' . sanitize_html_class( $data['id'] ) . ' envira-gallery-link " ' . $html5_attribute . '="enviragallery' . sanitize_html_class( $data['id'] ) . '" title="' . strip_tags( esc_attr( $item['title'] ) ) . '" data-envira-caption="' . $lightbox_caption . '" data-envira-retina="' . ( isset( $item['lightbox_retina_image'] ) ? $item['lightbox_retina_image'] : '' ) . '" data-thumbnail="' . esc_url( $item['thumb'] ) . '" data-mobile-thumbnail="' . $this->is_mobile_thumb . '"' . ( ( isset($item['link_new_window']) && $item['link_new_window'] == 1 ) ? ' target="_blank"' : '' ) . ' ' . apply_filters( 'envira_gallery_output_link_attr', '', $id, $item, $data, $i ) . ' ' . $schema_microdata . ' >';
-		
+
 		}
 
 		$output	 = apply_filters( 'envira_gallery_output_before_image', $output, $id, $item, $data, $i );
@@ -545,7 +552,7 @@ class Envira_Gallery_Shortcode {
         $schema_microdata = apply_filters( 'envira_gallery_output_schema_microdata_itemprop_thumbnailurl', 'itemprop="thumbnailUrl"', $data, $id, $item, $i );
 
 			// Build the image and allow filtering
-		$output_item = '<img id="envira-gallery-image-' . sanitize_html_class( $id ) . '" class="envira-gallery-image envira-lazy envira-gallery-image-' . $i . $gallery_theme . '" data-envira-index="' . $i . '" src="' . esc_url( $imagesrc ) . '"' . ( $this->get_config( 'dimensions', $data ) ? ' width="' . $this->get_config( 'crop_width', $data ) . '" height="' . $this->get_config( 'crop_height', $data ) . '"' : '' ) . ' data-envira-src="' . esc_url( $imagesrc ) . '" data-envira-gallery-id="' . $data['id'] . '" data-envira-item-id="' . $id . '" data-envira-caption="' . $caption . '" alt="' . ( isset( $item['alt'] ) ? esc_attr( $item['alt'] ) : "" ) . '" title="' . ( $this->get_config( 'columns', $data ) > 0 || ( $this->get_config( 'columns', $data ) == 0 && $this->get_config( 'additional_copy_automatic_title', $data ) ) ? strip_tags( esc_attr( $item['title'] ) ) : '' ) . '" ' . apply_filters( 'envira_gallery_output_image_attr', '', $id, $item, $data, $i ) . ' itemprop="thumbnailUrl" data-envira-srcset="' . esc_url( $imagesrc ) . ' 1x,' . esc_url( $image_src_retina ) . ' 2x" srcset="' . esc_url( $imagesrc ) . ' 1x,' . esc_url( $image_src_retina ) . ' 2x" />';
+		$output_item = '<img id="envira-gallery-image-' . sanitize_html_class( $id ) . '" class="envira-gallery-image envira-lazy envira-gallery-image-' . $i . $gallery_theme . '" data-envira-index="' . $i . '" src="' . esc_url( $imagesrc ) . '"' . ( $this->get_config( 'dimensions', $data ) ? ' width="' . $this->get_config( 'crop_width', $data ) . '" height="' . $this->get_config( 'crop_height', $data ) . '"' : '' ) . ' data-envira-src="' . esc_url( $imagesrc ) . '" data-envira-gallery-id="' . $data['id'] . '" data-envira-item-id="' . $id . '" data-envira-caption="' . $caption . '" alt="' . ( isset( $item['alt'] ) ? esc_attr( $item['alt'] ) : "" ) . '" title="' . ( isset( $item['title'] ) ? strip_tags( esc_attr( $item['title'] ) ) : '' ) . '" ' . apply_filters( 'envira_gallery_output_image_attr', '', $id, $item, $data, $i ) . ' itemprop="thumbnailUrl" data-envira-srcset="' . esc_url( $imagesrc ) . ' 1x,' . esc_url( $image_src_retina ) . ' 2x" srcset="' . esc_url( $imagesrc ) . ' 1x,' . esc_url( $image_src_retina ) . ' 2x" />';
 
 		$output_item = apply_filters( 'envira_gallery_output_image', $output_item, $id, $item, $data, $i );
 
@@ -555,9 +562,9 @@ class Envira_Gallery_Shortcode {
 
 		if ( $create_link ) {
 			$output .= '</a>';
-		
+
 		}
-		
+
 		$output	 = apply_filters( 'envira_gallery_output_after_link', $output, $id, $item, $data, $i );
 		$output .= '</div>';
 
@@ -569,11 +576,11 @@ class Envira_Gallery_Shortcode {
 
 		// Filter the output before returning
 		$gallery  = apply_filters( 'envira_gallery_output_after_item', $gallery, $id, $item, $data, $i );
-		
+
 		return $gallery;
 
 	}
-	
+
 	/**
 	* Add the 'property' tag to stylesheets enqueued in the body
 	*
@@ -1114,7 +1121,7 @@ class Envira_Gallery_Shortcode {
                                 },
                                 slideshow: {
                                     skipSingle: true
-                                },                               
+                                },
                                 <?php else: ?>
                                 slideshow: {
                                     skipSingle: true
@@ -1574,7 +1581,12 @@ class Envira_Gallery_Shortcode {
 	public function envirabox_margin( $margin, $data ) {
 
 		if ( $this->get_config( 'supersize', $data ) ) {
-			$margin = 0;
+			// if this is mobile and there no thumbnails on a light/dark theme, then add a negative value to the top
+			if ( $this->is_mobile && !$this->get_config( 'mobile_thumbnails', $data ) && ( 'base_dark' == $this->get_config( 'lightbox_theme', $data ) || 'base_light' == $this->get_config( 'lightbox_theme', $data ) ) ) {
+				$margin = '[-30,0,0,0]';
+			} else {
+				$margin = 0;
+			}
 		}
 
 		if ( $this->get_config( 'arrows_position', $data ) == 'outside' ) {
@@ -1584,6 +1596,7 @@ class Envira_Gallery_Shortcode {
 		return $margin;
 
 	}
+
 
 	/**
 	 * Set the margin
@@ -1628,7 +1641,7 @@ class Envira_Gallery_Shortcode {
 
 	/**
 	 * envirabox_gallery_thumbs_position function.
-	 * 
+	 *
 	 * @access public
 	 * @param mixed $position
 	 * @param mixed $data
@@ -1700,7 +1713,7 @@ class Envira_Gallery_Shortcode {
 
 	/**
 	 * envirabox_inner_above function.
-	 * 
+	 *
 	 * @access public
 	 * @param mixed $template
 	 * @param mixed $data
@@ -1720,7 +1733,7 @@ class Envira_Gallery_Shortcode {
 
 	/**
 	 * envirabox_actions function.
-	 * 
+	 *
 	 * @access public
 	 * @param mixed $template
 	 * @param mixed $data
@@ -1858,14 +1871,15 @@ class Envira_Gallery_Shortcode {
 
 		// Check gallery config
 		$image_size = $this->get_config( 'lightbox_image_size', $data );
-		
+
 		//check if the url is a valid image if not return it
-		if (! $this->is_image( $item['link'] ) ) {		
-			return $item;		
-		}	
+		if (! $this->is_image( $item['link'] ) ) {
+			return $item;
+		}
 
 		// Get media library attachment at requested size
 		$image = wp_get_attachment_image_src( $id, $image_size );
+
 		if ( ! is_array( $image ) ) {
 			return $item;
 		}
@@ -1914,17 +1928,17 @@ class Envira_Gallery_Shortcode {
 		$image_size = $this->get_config( 'image_size', $data );
 
 		if ( !$src ) :
-		
+
 			if ( $image_size != 'full' && ! $retina ) {
-				
+
 				// Check if this Gallery uses a WordPress defined image size
 				if ( $image_size != 'default'  ) {
 					// If image size is envira_gallery_random, get a random image size.
 					if ( $image_size == 'envira_gallery_random' ) {
-	
+
 						// Get random image sizes that have been chosen for this Gallery.
 						$image_sizes_random = (array) $this->get_config( 'image_sizes_random', $data );
-	
+
 						if ( count( $image_sizes_random ) == 0 ) {
 							// The user didn't choose any image sizes - use them all.
 							$wordpress_image_sizes = $this->common->get_image_sizes( true );
@@ -1934,7 +1948,7 @@ class Envira_Gallery_Shortcode {
 							$wordpress_image_size_random_key = array_rand( $image_sizes_random, 1 );
 							$image_size = $image_sizes_random[ $wordpress_image_size_random_key ];
 						}
-	
+
 						// Get the random WordPress defined image size
 						$src = wp_get_attachment_image_src( $id, $image_size );
 					} else {
@@ -1942,14 +1956,14 @@ class Envira_Gallery_Shortcode {
 						$src = wp_get_attachment_image_src( $id, $image_size );
 					}
 				} else {
-					
+
 					$isize = $this->find_clostest_size( $this->gallery_data ) != '' ? $this->find_clostest_size( $data ) : 'full';
 					$src = apply_filters( 'envira_gallery_default_image_src', wp_get_attachment_image_src( $id, $isize ), $id, $item, $data, $this->is_mobile );
-		
-				}	
-							
+
+				}
+
 			} else{
-				
+
 				$src = apply_filters( 'envira_gallery_retina_image_src', wp_get_attachment_image_src( $id, 'full' ), $id, $item, $data, $this->is_mobile );
 
 			}
@@ -1992,7 +2006,7 @@ class Envira_Gallery_Shortcode {
 		// If the image size is default (i.e. the user has input their own custom dimensions in the Gallery),
 		// we may need to resize the image now
 		// This is safe to call every time, as resize_image() will check if the image already exists, preventing thumbnails
-		// from being generated every single time.		
+		// from being generated every single time.
 
 		$args = array(
 			'position' => 'c',
@@ -2005,7 +2019,7 @@ class Envira_Gallery_Shortcode {
 		// If we're requesting a retina image, and the gallery uses a registered WordPress image size,
 		// we need use the width and height of that registered WordPress image size - not the gallery's
 		// image width and height, which are hidden settings.
-		
+
 		// if this is mobile, go with the mobile image settings, otherwise proceed?
 
 		if ( $image_size != 'default' && $retina && $type != 'mobile' ) {
@@ -2019,10 +2033,10 @@ class Envira_Gallery_Shortcode {
 				}
 
 				// We found the image size. Use its dimensions
-				if ( !empty( $size['width'] ) ) { 
+				if ( !empty( $size['width'] ) ) {
 					$args['width'] = $size['width'];
 				}
-				if ( !empty( $size['height'] ) ) { 
+				if ( !empty( $size['height'] ) ) {
 					$args['height'] = $size['height'];
 				}
 				break;
@@ -2051,10 +2065,10 @@ class Envira_Gallery_Shortcode {
 		}
 
 	}
-	
+
 	/**
 	 * find_clostest_size function.
-	 * 
+	 *
 	 * @access public
 	 * @param mixed $data
 	 * @return void
@@ -2092,24 +2106,24 @@ class Envira_Gallery_Shortcode {
 		return '';
 
 	}
-	
+
 	/**
 	 * Helper function for usort and php 5.3 >.
-	 * 
+	 *
 	 * @access public
 	 * @param mixed $a
 	 * @param mixed $b
 	 * @return void
 	 */
 	function usort_callback($a, $b) {
-		
+
 		return intval($a['width']) - intval($b['width'] );
-	
+
 	}
-		
+
 	/**
 	 * get_image_sizes function.
-	 * 
+	 *
 	 * @access public
 	 * @return void
 	 */
@@ -2150,7 +2164,7 @@ class Envira_Gallery_Shortcode {
 	}
 		return $sizes;
 	}
-	
+
 	/**
 	 * Helper method to retrieve the proper gallery toolbar template.
 	 *
@@ -2445,7 +2459,7 @@ class Envira_Gallery_Shortcode {
 	* @return string Output HTML
 	*/
 	public function envira_gallery_image_caption_titles( $output, $id, $item, $data, $i ) {
-		
+
 		// this only applies to legacy, not dark/light themes, etc.
 		if ( $this->get_config( 'columns', $this->gallery_data ) == 0 ) {
 			return $output;
@@ -2469,12 +2483,12 @@ class Envira_Gallery_Shortcode {
 		// has user checked off title and is there a title in $item?
 		if ( $this->get_config( 'additional_copy_caption', $this->gallery_data ) == 1 && ! empty( $item['caption'] ) ) {
 			$output .= '<span class="envira-caption caption-' . $id . '">' . wp_kses( $item['caption'], $allowed_html_tags ) . '</span>';
-		}	
+		}
 
 		return apply_filters( 'envira_gallery_image_caption_titles', $output, $id, $item, $data, $i );
-		
+
 	}
-	
+
 
 	/**
 	 * Inserts images into Yoast SEO Sitexml.
@@ -2486,10 +2500,10 @@ class Envira_Gallery_Shortcode {
 	 *
 	 * @return array	  	Updated Yoast Array.
 	 */
-	public function envira_filter_wpseo_sitemap_urlimages( $yoast_images, $post_id ) { 
-	    
+	public function envira_filter_wpseo_sitemap_urlimages( $yoast_images, $post_id ) {
+
 	    // make filter magic happen here... if the post_id is an envira gallery or album, great. if not, go back.
-   
+
 		if ( ! get_post_type( $post_id ) == 'envira' && ! get_post_type( $post_id ) == 'envira_album' ) {
 			return $yoast_images;
 		}
@@ -2532,7 +2546,7 @@ class Envira_Gallery_Shortcode {
 					if ( $counter <= 50 && !empty ( $album_gallery['id'] ) ) {
 
 						$gallery = $this->base->_get_gallery( $album_gallery['id'] );
-						
+
 						if ( $gallery && ! empty( $gallery['gallery'] ) ) {
 							foreach ( $gallery['gallery'] as $image ) {
 								if ( !empty ( $image['src'] ) ) {
@@ -2547,50 +2561,50 @@ class Envira_Gallery_Shortcode {
 
 		}
 
-	    return $yoast_images; 
+	    return $yoast_images;
 	}
-	
+
 	/**
 	 * isImage function.
-	 * 
+	 *
 	 * @access public
 	 * @param mixed $url
 	 * @return void
 	 */
 	function is_image( $url ) {
-    	
+
     	$p = strrpos( $url, ".");
-		
+
 		if ( $p === false ){
-			
+
 			return false;
-			
+
 		}
-		
+
 		$extension = strtolower( trim( substr( $url, $p ) ) );
-		
-		$img_extensions = array('.gif', '.jpg', '.jpeg', '.png', '.tiff', '.tif'); 
-		
+
+		$img_extensions = array('.gif', '.jpg', '.jpeg', '.png', '.tiff', '.tif');
+
 		if ( in_array( $extension, $img_extensions ) ){
-			
+
 			return true;
-		
+
 		}
-		
+
 		return false;
   	}
-	
-	function starttime() {		
-		$r = explode( ' ', microtime() );		
-		$r = $r[1] + $r[0];		
-		return $r;		
-	}		
-  		  
-	function endtime($starttime) {		
-		$r = explode( ' ', microtime() );		
-		$r = $r[1] + $r[0];		
-		$r = round($r - $starttime,4);		
-		return '<strong>Execution Time</strong>: '.$r.' seconds<br />';		
+
+	function starttime() {
+		$r = explode( ' ', microtime() );
+		$r = $r[1] + $r[0];
+		return $r;
+	}
+
+	function endtime($starttime) {
+		$r = explode( ' ', microtime() );
+		$r = $r[1] + $r[0];
+		$r = round($r - $starttime,4);
+		return '<strong>Execution Time</strong>: '.$r.' seconds<br />';
 	}
 	/**
 	 * Returns the singleton instance of the class.

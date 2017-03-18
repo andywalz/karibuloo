@@ -17,7 +17,9 @@
       display: none; }
     .envirabox-overlay.overlay-supersize.overlay-base_dark .envirabox-wrap .envirabox-inner .envirabox-position-overlay {
       bottom: 15px;
-      width: auto; }
+      width: auto;
+      display: table;
+      /* table, otherwise the overlap - like in pinterest addon - will not allow the nav arrows to be clicked because the div height will extend */ }
     .envirabox-overlay.overlay-supersize.overlay-base_dark .envirabox-wrap .envirabox-inner .envirabox-position-overlay.envira-gallery-top-left, .envirabox-overlay.overlay-supersize.overlay-base_dark .envirabox-wrap .envirabox-inner .envirabox-position-overlay.envira-gallery-top-right {
       top: 0; }
     .envirabox-overlay.overlay-supersize.overlay-base_dark .envirabox-wrap .envirabox-title {

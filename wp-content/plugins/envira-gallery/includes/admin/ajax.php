@@ -595,12 +595,12 @@ function envira_gallery_ajax_save_bulk_meta() {
 
 	// Iterate through gallery images, updating the metadata.
 	foreach ( $image_ids as $image_id ) {
-		
+
 		// If the image isn't in the gallery, something went wrong - so skip this image.
 		if ( ! isset( $gallery_data['gallery'][ $image_id ] ) ) {
 			continue;
 		}
-				
+
 		// Save the different types of default meta fields for images, videos and HTML slides.
 		if ( isset( $meta['status'] ) ) {
 			   $gallery_data['gallery'][$image_id]['status'] = trim( esc_html( $meta['status'] ) );
@@ -982,7 +982,7 @@ function envira_gallery_editor_get_galleries() {
 
 		$temp_title = false;
 		if ( isset( $gallery_post->post_title ) ) {
-			$temp_title =  trim( $gallery_post->post_title );	
+			$temp_title =  trim( $gallery_post->post_title );
 		}
 
 		if ( ! empty( $temp_title ) ) {
@@ -1092,7 +1092,27 @@ function envira_gallery_move_media() {
 		}
 
 		// Copy the image to $to_gallery
-		$to_gallery['gallery'][ $image_id ] = $from_gallery['gallery'][ $image_id ];
+		// Add this image to the start or end of the gallery, depending on the setting
+		$instance = Envira_Gallery_Settings::get_instance();
+		$media_position = $instance->get_setting( 'media_position' );
+
+		switch ( $media_position ) {
+			case 'before':
+				// Add image to start of images array
+				// Store copy of images, reset gallery array and rebuild
+				$images = $to_gallery['gallery'];
+				$to_gallery['gallery'] = array();
+				$to_gallery['gallery'][ $image_id ] = $from_gallery['gallery'][ $image_id ];
+				foreach ( $images as $old_image_id => $old_image ) {
+					$to_gallery['gallery'][ $old_image_id ] = $old_image;
+				}
+				break;
+			case 'after':
+			default:
+				// Add image, this will default to the end of the array
+				$to_gallery['gallery'][ $image_id ] = $from_gallery['gallery'][ $image_id ];
+				break;
+		}
 
 		// Remove the image from $from_gallery
 		unset( $from_gallery['gallery'][ $image_id ] );
